@@ -1,13 +1,13 @@
 # Build stage
-FROM node:24-alpine AS builder
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+FROM node:26-bookworm-slim AS builder
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Bootstrap the package manager version declared by the project.
+RUN npm install -g "pnpm@$(node -p 'require("./package.json").devEngines.packageManager.version')"
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile

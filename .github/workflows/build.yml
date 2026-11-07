@@ -1,7 +1,7 @@
 name: Build
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
 
@@ -14,17 +14,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Setup pnpm and install dependencies
+        uses: pnpm/setup@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          cache: true
+          require-lockfile: true
 
-      - name: Setup Volta
-        uses: volta-cli/action@v5
+      - name: Verify tool versions
+        run: |
+          pnpm --version
+          pnpm exec node --version
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6.1.0
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm run lint
 
       - name: Build
         run: pnpm run build
